@@ -19,10 +19,8 @@ class FireParticle {
         // Vary the starting sizes of each particle
         this.size = random(20, 28)
 
-        // Make sure we use the correct color mode
-        colorMode(RGB)
         // Random color at differing shades of red / orange / yellow
-        this.color = [random(230, 255), random(140, 180), random(50, 80)]
+        this.color = [random(15, 27), 80, 100];
 
     // Reduce the particle's 'visual energy' as they progress 
     // higher values will damp less
@@ -33,7 +31,8 @@ class FireParticle {
 
         // Reduce the size and opacity of each particle
         this.decay_size = 0.98
-        this.decay_alpha = 0.97
+        this.decay_alpha = 0.985
+        // this.decay_alpha = 0.97
 
         // Random value for the particles to sway back and forth with the 'wind'
         this.sway = random(10)
@@ -59,9 +58,9 @@ class FireParticle {
         this.sway += 0.02
         
         // Fade particles in then out
-        if (this.alpha < 255 && this.fadingIn) {
+        if (this.alpha < 1 && this.fadingIn) {
              //Fade in over 8 frames
-            this.alpha += 255 / 8
+            this.alpha += 1 / 8
         } else {
             // Once faded in, begin fading each particle out
             this.fadingIn = false
@@ -70,15 +69,15 @@ class FireParticle {
     }
 
     show() {
-        colorMode(RGB)
+        colorMode(HSB)
         noStroke()
         // Use a softer, more varied fire color
-        fill(this.color[0], this.color[1], this.color[2], this.alpha)
+        fill(this.color[0], this.color[1] * (this.alpha * 2), this.color[2] * (this.alpha * 2), this.alpha)
         ellipse(this.x, this.y, this.size)
 
     }
 
     isFinished() {
-        return this.alpha <= 1
+        return this.alpha <= 0.005
     }
 }
