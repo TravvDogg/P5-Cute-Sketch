@@ -12,82 +12,90 @@ class FireParticle {
     // Define starting parameters
 
     // Define particle starting coordinates
-    this.x = x;
-    this.y = y;
+    this.x = x
+    this.y = y
 
     // Give the fire random velocity, to move up and to the side at varying speeds
-    this.vx = random(-0.4, 0.4);
-    this.vy = random(-4, -0.5);
+    this.vx = random(-0.4, 0.4)
+    this.vy = random(-4, -0.5)
 
     // Start the particle as transparent, to fade in
-    this.alpha = 0;
-    this.fadingIn = true;
+    this.alpha = 0
+    this.fadingIn = true
 
     // Vary the starting sizes of each particle
-    this.size = random(20, 28);
+    this.size = random(20, 28)
 
     // Random color at differing shades of red / orange / yellow
-    this.color = [random(15, 27), 80, 100];
+    this.color = [random(15, 27), 80, 100]
 
     // Reduce the particle's 'visual energy' as they progress
     // higher values will damp less
 
     // Reduce the speed they move sideways and up
-    this.damping_x = 0.95;
-    this.damping_y = 0.975;
+    this.damping_x = 0.95
+    this.damping_y = 0.975
 
     // Reduce the size and opacity of each particle
-    this.decay_size = 0.98;
-    this.decay_alpha = 0.985;
+    this.decay_size = 0.98
+    this.decay_alpha = 0.985
+    
+    // amount of frames to fade in
+    this.fadeIn_frames = 8
 
     // Random value for the particles to sway back and forth with the 'wind'
-    this.sway = random(10);
+    this.sway = random(10)
+    // Increase sway coefficient for more spread
+    this.swayCoeff = 0.2
+    // Amount to advance 'sway' over time
+    //Higher values produce more chaotic results
+    this.swayIncrement = 0.02
   }
 
   update() {
     // Translate each particle by their velocity
-    // And apply sway to the particles over time.
+    // And apply sway to the particles over time
     // Increase coefficient of sin() for more spread
-    this.x += this.vx + sin(this.sway) * 0.2;
+    this.x += this.vx + sin(this.sway) * this.swayCoeff
 
-    this.y += this.vy;
+    this.y += this.vy
 
     // Reduce velocity over time
-    this.vx *= this.damping_x;
-    this.vy *= this.damping_y;
+    this.vx *= this.damping_x
+    this.vy *= this.damping_y
 
     // Reduce size over time
-    this.size *= this.decay_size;
+    this.size *= this.decay_size
 
     // Advance 'sway' over time
-    // Larger values will increase their oscillating left-to-right energy.
-    this.sway += 0.02;
+    // Larger values will increase their oscillating left-to-right energy
+    this.sway += this.swayIncrement
 
     // Fade particles in then out
     if (this.alpha < 1 && this.fadingIn) {
       //Fade in over 8 frames
-      this.alpha += 1 / 8;
+      this.alpha += 1 / this.fadeIn_frames
     } else {
       // Once faded in, begin fading each particle out
-      this.fadingIn = false;
-      this.alpha *= this.decay_alpha;
+      this.fadingIn = false
+      this.alpha *= this.decay_alpha
     }
   }
 
   show() {
-    colorMode(HSB);
-    noStroke();
+    colorMode(HSB)
+    noStroke()
     // Use a softer, more varied fire color
     fill(
       this.color[0],
       this.color[1] * (this.alpha * 2),
       this.color[2] * (this.alpha * 2),
       this.alpha,
-    );
-    ellipse(this.x, this.y, this.size);
+    )
+    ellipse(this.x, this.y, this.size)
   }
 
   isFinished() {
-    return this.alpha <= 0.005;
+    return this.alpha <= 0.005
   }
 }
