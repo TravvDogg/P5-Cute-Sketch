@@ -8,7 +8,7 @@
 \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ */
 
 class FireParticle {
-  constructor(x, y) {
+  constructor(x, y, damping_x = 0.95, damping_y = 0.975, x_spread = 0.4, y_spread_min = -4, y_spread_max = -0.5, decay_size = 0.98, decay_alpha = 0.985, fadeIn_frames = 8) {
     // Define starting parameters
 
     // Define particle starting coordinates
@@ -16,8 +16,8 @@ class FireParticle {
     this.y = y
 
     // Give the fire random velocity, to move up and to the side at varying speeds
-    this.vx = random(-0.4, 0.4)
-    this.vy = random(-4, -0.5)
+    this.vx = random(-x_spread, x_spread)
+    this.vy = random(y_spread_min, y_spread_max)
 
     // Start the particle as transparent, to fade in
     this.alpha = 0
@@ -33,15 +33,15 @@ class FireParticle {
     // higher values will damp less
 
     // Reduce the speed they move sideways and up
-    this.damping_x = 0.95
-    this.damping_y = 0.975
+    this.damping_x = damping_x
+    this.damping_y = damping_y
 
     // Reduce the size and opacity of each particle
-    this.decay_size = 0.98
-    this.decay_alpha = 0.985
+    this.decay_size = decay_size
+    this.decay_alpha = decay_alpha
     
     // amount of frames to fade in
-    this.fadeIn_frames = 8
+    this.fadeIn_frames = fadeIn_frames
 
     // Random value for the particles to sway back and forth with the 'wind'
     this.sway = random(10)
