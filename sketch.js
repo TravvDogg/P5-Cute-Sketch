@@ -15,15 +15,20 @@
 let SFX_marshmallow_burn;
 let SFX_campfire;
 
-function preload() {}
-
 // Initialise fire_particles array
 let fire_particles = [];
 // Initialise coordinates of fire base
 let fire_base_x;
 let fire_base_y;
 // Set fire_lit to false
-let fire_lit = false;
+let fire_lit = true;
+
+// Instance of the marshmallow class
+let marshmallow
+
+function preload() {
+  // Once i have sound effects they will be loaded here
+}
 
 function setup() {
   createCanvas(400, 400);
@@ -33,6 +38,8 @@ function setup() {
   fire_base_x = width / 2;
   // Draw fire 3/4 the height of the screen
   fire_base_y = (3 * height) / 4;
+
+  marshmallow = new Marshmallow(width / 2, height / 2)
 }
 
 function draw() {
@@ -53,7 +60,7 @@ function draw() {
 
   // Logic for the beginning of the simulation, before the fire is lit
   if (!fire_lit) {
-    // ---------------------------------Execute While Fire is Unlit----------------------------------
+    // -------------------------------Execute While Fire is Unlit----------------------------------
 
     // Draw the 'open eyes' or 'light campfire' text, on black screen
 
@@ -68,12 +75,39 @@ function draw() {
       new FireParticle(fire_base_x + random(-20, 20), fire_base_y),
     );
   }
+
+  marshmallow.update()
+  marshmallow.show()
 }
 
-// Toggle the fire when mouse is clicked
-function mouseClicked() {
-  // if (!fire_lit) {
-  //   fire_lit = true
-  // }
-  fire_lit = !fire_lit;
+
+// Interactions
+
+function mousePressed() {
+  if (mouseButton == LEFT) {
+    marshmallow.throwTowardsFire()
+  } else if (mouseButton == RIGHT) {
+    marshmallow.rightClickAction()
+    return false
+  }
 }
+// Prevent default context menu on right click (courtesey of dev.to,
+// https://dev.to/natclark/disable-right-click-context-menu-in-javascript-49co
+window.addEventListener(`contextmenu`, (e) => e.preventDefault());
+
+function mouseReleased() {
+  if (mouseButton == LEFT) {
+    marshmallow.returnToPlayer()
+  }
+}
+
+// Toggle the fire when mouse is clicked (DEPRECIATED)
+// TODO: Toggle the fire when 'F' key is pressed instead.
+// function mouseClicked() {
+//   // if (!fire_lit) {
+//   //   fire_lit = true
+//   // }
+//   fire_lit = !fire_lit;
+// }
+
+
