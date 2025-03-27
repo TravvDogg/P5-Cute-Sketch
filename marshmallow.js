@@ -29,6 +29,9 @@ class Marshmallow {
     this.cookTimer = 0
     // Threshold in seconds
     this.cookThreshold = 0.5
+
+    // Initialise marshmallow's burning effect
+    this.fire_particles = []
   }
   
   update() {
@@ -60,15 +63,32 @@ class Marshmallow {
     
     // Save the current drawing state
     push()
-    // Move the origin to the marshmallow's position
-    translate(this.position.x, this.position.y)
     
+    // Update and display all fire_particles
+    for (let i = this.fire_particles.length - 1; i >= 0; i--) {
+      this.fire_particles[i].update()
+      this.fire_particles[i].show()
+
+      // Remove fire_particles when they have faded out
+      if (this.fire_particles[i].isFinished()) {
+        this.fire_particles.splice(i, 1)
+      }
+    }
+
     // Draw the marshmallow based on its current state
     colorMode(HSB)
     if (this.isBurnt && !this.isExtinguished) {
       // Burnt appearance: darker fill and stroke
       fill(40, 30, 30)
       stroke(10, 50, 50)
+
+      // Add a flame particle to the marshmallow
+      if (frameCount % random(1, 2) <= 1) {
+        this.fire_particles.push(
+          new FireParticle(this.position.x, this.position.y),
+        )
+      }
+
     } else if (this.isExtinguished) {
       fill(40)
       stroke(0)
@@ -78,7 +98,7 @@ class Marshmallow {
       // TODO: Interpolate from white to golden brown, with a threshold before completely burnt
       stroke(200)
     }
-    ellipse(0, 0, 40, 40)
+    ellipse(this.position.x, this.position.y, 40, 40)
 
     pop()
   }
@@ -99,7 +119,7 @@ class Marshmallow {
     }
   }
   
-  // On right-click: if burnt, first extinguish then eat; else eat directly if following
+  // On right-click: if burnt, first extinguish then eat, else eat directly
   rightClickAction() {
     if (this.isBurnt) {
       if (!this.isExtinguished) {
@@ -125,4 +145,4 @@ class Marshmallow {
 }
 
 // Make the class available in the global scope
-window.Marshmallow = Marshmallow;
+window.Marshmallow = Marshmallow
