@@ -32,7 +32,6 @@ class FireParticle {
         // Reduce the size and opacity of each particle
         this.decay_size = 0.98
         this.decay_alpha = 0.985
-        // this.decay_alpha = 0.97
 
         // Random value for the particles to sway back and forth with the 'wind'
         this.sway = random(10)

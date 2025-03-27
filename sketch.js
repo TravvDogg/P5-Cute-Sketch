@@ -23,9 +23,6 @@ let fire_particles = []
 let fire_base_x
 let fire_base_y
 
-// Initialise smoke_stream
-let smoke_stream
-
 function setup() {
   createCanvas(400, 400)
   frameRate(60)
@@ -34,9 +31,6 @@ function setup() {
   fire_base_x = width / 2
   // Draw fire 3/4 the height of the screen
   fire_base_y = 3 * height / 4
-
-  // Assign the class SmokeStream to the variable smoke_stream
-  smoke_stream = new SmokeStream(fire_base_x + random(-10, 10), fire_base_y)
 }
 
 let fire_lit = true
@@ -56,10 +50,6 @@ function draw() {
       fire_particles.splice(i, 1)
     }
   }
-  
-  // Update and display smoke_stream
-  smoke_stream.update()
-  smoke_stream.show()
   
   // Logic for the beginning of the simulation, before the fire is lit
   if (!fire_lit) {
