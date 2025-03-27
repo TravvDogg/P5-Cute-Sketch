@@ -27,25 +27,25 @@ class Marshmallow {
     
     // Timer to track cooking progress when near the fire
     this.cookTimer = 0
-    this.cookThreshold  // ~3 seconds at the current framerate (or 60) before burning
-
-    // 0-1 value of cooking progress
-    this.cookedProgress = 0
-
+    // Threshold in seconds
+    this.cookThreshold = 0.5
   }
   
   update() {
-    this.cookThreshold = 15 * frameRate()
     // Simple State Machine
     this.position.set(mouseX, mouseY)
-    
-
-    // update value of cooking progress
 
     // Cook Marshmallow
     if (this.state == "cooking") {
-      // Increment cooking timer while near the fire
-      this.cookTimer++
+      // Increment cooking timer while near the fire, based on seconds
+     
+      // Time elapsed in seconds
+      let dt = 1 / frameRate()
+      
+      // Update cooking progress based on time
+      this.cookTimer += dt // TODO: Accelerate cooking based on proximity to the fire column
+      this.cookedProgress = constrain(this.cookTimer / this.cookThreshold, 0, 1)
+
       console.log(this.cookedProgress)
       if (this.cookTimer > this.cookThreshold) {
         this.isBurnt = true
@@ -64,16 +64,17 @@ class Marshmallow {
     translate(this.position.x, this.position.y)
     
     // Draw the marshmallow based on its current state
-    if (this.isBurnt) {
+    colorMode(HSB)
+    if (this.isBurnt && !this.isExtinguished) {
       // Burnt appearance: darker fill and stroke
-      fill(80)
-      stroke(60)
+      fill(40, 30, 30)
+      stroke(10, 50, 50)
     } else if (this.isExtinguished) {
-      
+      fill(40)
+      stroke(0)
     } else {
       // Normal cute marshmallow: soft, warm colors
-      colorMode(RGB)
-      fill(255, 240, 240)
+      fill(60, 7, 95)
       // TODO: Interpolate from white to golden brown, with a threshold before completely burnt
       stroke(200)
     }
@@ -101,7 +102,7 @@ class Marshmallow {
   // On right-click: if burnt, first extinguish then eat; else eat directly if following
   rightClickAction() {
     if (this.isBurnt) {
-      if (!this.Extinguished) {
+      if (!this.isExtinguished) {
         // First right-click extinguishes the burnt marshmallow
         this.isExtinguished = true
       } else {
