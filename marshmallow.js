@@ -85,7 +85,7 @@ class Marshmallow {
       // Add a flame particle to the marshmallow
       if (frameCount % random(1, 2) <= 1) {
         this.fire_particles.push(
-          new FireParticle(this.position.x, this.position.y),
+          new FireParticle(this.position.x, this.position.y, 1, 0.975, 0.1, 0.5, -2, 0.97, ),
         )
       }
 
