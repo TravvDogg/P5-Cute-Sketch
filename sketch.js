@@ -26,6 +26,8 @@ let fire_lit = true
 // Instance of the marshmallow class
 let marshmallow
 
+// Buffer for marshmallows that still have tasks to complete after they are eaten
+let marshmallowBuffer = []
 function preload() {
   // Once i have sound effects they will be loaded here
 }
@@ -47,6 +49,11 @@ function draw() {
   colorMode(RGB)
   background(50)
 
+  // Seperate function for UI Elements, for modular code.
+  drawUI()
+
+  // Manage buffered marshmallows and delete them when neccesary.
+  updateBufferedMarshmallows()
   // Update and display all fire_particles
   for (let i = fire_particles.length - 1; i >= 0; i--) {
     fire_particles[i].update()
@@ -80,6 +87,30 @@ function draw() {
   marshmallow.show()
 }
 
+function drawUI() {
+
+}
+
+function replaceActiveMarshmallow(newMarshmallow) {
+  // Push old marshmallow into the buffer instead of instantly deleting it.
+  if (marshmallow) {
+    marshmallowBuffer.push(marshmallow)
+  }
+  marshmallow = newMarshmallow
+}
+
+function updateBufferedMarshmallows() {
+  for (let i = marshmallowBuffer.length - 1; i >= 0; i--) {
+    if (marshmallowBuffer[i].isFinished) {
+      // Remove from buffer once everything is complete
+      marshmallowBuffer.splice(i, 1)
+    } else {
+      marshmallowBuffer[i].update()
+      marshmallowBuffer[i].show()
+    }
+  }
+}
+
 
 // Interactions
 
@@ -87,19 +118,25 @@ function mousePressed() {
   if (mouseButton == LEFT) {
     marshmallow.throwTowardsFire()
   } else if (mouseButton == RIGHT) {
-    marshmallow.rightClickAction()
+    if (!marshmallow.isEaten) {
+      marshmallow.rightClickAction()
+    } else {
+      replaceActiveMarshmallow(new Marshmallow(mouseX, mouseY))
+    }
     return false
   }
 }
-// Prevent default context menu on right click (courtesey of dev.to,
-// https://dev.to/natclark/disable-right-click-context-menu-in-javascript-49co
-window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 
 function mouseReleased() {
   if (mouseButton == LEFT) {
     marshmallow.returnToPlayer()
   }
 }
+
+// Prevent default context menu on right click, courtesey of dev.to,
+// https://dev.to/natclark/disable-right-click-context-menu-in-javascript-49co
+window.addEventListener(`contextmenu`, (e) => e.preventDefault())
+
 
 // Toggle the fire when mouse is clicked (DEPRECIATED)
 // TODO: Toggle the fire when 'F' key is pressed instead.
