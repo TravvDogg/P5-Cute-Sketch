@@ -96,6 +96,6 @@ class FireParticle {
   }
 
   isFinished() {
-    return this.alpha <= 0.01
+    return this.alpha <= 0.1
   }
 }
