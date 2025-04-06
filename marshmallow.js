@@ -161,7 +161,7 @@ class Marshmallow {
 
     
     let marshmallowSquircleCurves = this.displaySize / 3
-    square(this.position.x - (this.displaySize / 2), this.position.y - (this.displaySize / 2), this.displaySize, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves)
+    square(this.position.x, this.position.y, this.displaySize, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves)
 
   }
   

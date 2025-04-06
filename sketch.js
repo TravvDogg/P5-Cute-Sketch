@@ -13,8 +13,14 @@ let fire_particles = []
 let fire_base_x
 let fire_base_y
 // Set fire_lit to false
-let fire_lit = true
+let fire_lit = false
+// Allow the code to do something wile the campfire is being lit, but not yet lit
+let lightingCampfire = false
+// Measure time for text to fade off screen
+let fadeLightCampfireTextStartTime = 0
 
+const textPaddingSides = 20
+const textPaddingUD = 10
 // Instance of the marshmallow class
 let marshmallow
 
@@ -27,6 +33,7 @@ function preload() {
 function setup() {
   createCanvas(400, 400)
   frameRate(60)
+  rectMode(CENTER)
 
   // Draw fire from the middle of the screen
   fire_base_x = width / 2
@@ -40,9 +47,6 @@ function draw() {
   // ---------------------------------Execute Regardless of Fire State-----------------------------
   colorMode(RGB)
   background(50)
-
-  // Seperate function for UI Elements, for modular code.
-  drawUI()
 
   // Manage buffered marshmallows and delete them when neccesary.
   updateBufferedMarshmallows()
@@ -61,8 +65,17 @@ function draw() {
   if (!fire_lit) {
     // -------------------------------Execute While Fire is Unlit----------------------------------
 
-    // Draw the 'open eyes' or 'light campfire' text, on black screen
-
+    if (!lightingCampfire) {
+      fill(255, 255)
+    } else {
+      // Measure time elapsed with the variable elapsed
+      let elapsed_LightCampfireText = millis() - fadeLightCampfireTextStartTime
+      // Fade out the alpha over 500 ms, from 255 to 0.
+      fill(255, lerp(255, 0, constrain(elapsed_LightCampfireText / 500, 0, 1)))
+    }
+    // Display starting text in the middle of the screen
+    textAlign(CENTER, CENTER)
+    text("Press 'F' to light campfire", width / 2, height / 2)
     return
   }
   // ---------------------------------Execute While Fire is Lit------------------------------------
@@ -74,13 +87,32 @@ function draw() {
       new FireParticle(fire_base_x + random(-20, 20), fire_base_y),
     )
   }
-
   marshmallow.update()
   marshmallow.show()
+  
+  // Draw all ui elements on top
+  drawUI()
 }
 
-function drawUI() {
+let UI_alpha = 0
+const fadeRate = 10
 
+function drawUI() {
+  colorMode(RGB)
+  // Only draw UI elements when mouse is within the canvas
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+    // Fade in to 255 (max alpha) at a constant rate, without going above 255
+    UI_alpha = min(UI_alpha + fadeRate, 255)
+  } else {
+    // Fade out to 0 (min alpha) at a constant rate, without going below 0
+    UI_alpha = max(UI_alpha - fadeRate, 0);
+  }
+
+  fill(255, UI_alpha)
+  textAlign(LEFT, TOP)
+  text("roast marshmallow \n◀ (left click)", textPaddingSides, textPaddingUD)
+  textAlign(RIGHT, TOP)
+  text("eat / replace marshmallow \n(right click) ▶", width - textPaddingSides, textPaddingUD)
 }
 
 function replaceActiveMarshmallow(newMarshmallow) {
@@ -129,15 +161,17 @@ function mouseReleased() {
 // https://dev.to/natclark/disable-right-click-context-menu-in-javascript-49co
 window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 
+function keyPressed() {
+  if (key === 'F' || key === 'f') {
+    if (!fire_lit) {
+      lightingCampfire = true
+      fadeLightCampfireTextStartTime = millis()
+      sfxControl.lightCampfire()
+    }
+  }
+}
 
-// Toggle the fire when mouse is clicked (DEPRECIATED)
-// TODO: Toggle the fire when 'F' key is pressed instead.
-// function mouseClicked() {
-//   // if (!fire_lit) {
-//   //   fire_lit = true
-//   // }
-//   fire_lit = !fire_lit
-// }
+
 //#endregion
 
 //#region Sound-Effect-Control-Functions
@@ -206,8 +240,8 @@ const sfxVolume = {
     marshmallow_eat: 1,
     burp: 1,
     campfire_ignite: 1,
-    campfire_loop: 1,
-    ambientMusic: 1
+    campfire_loop: 0.8,
+    ambientMusic: 0.3
 }
 
 // 50% chance to play burp sound effect. 
@@ -230,19 +264,19 @@ const sfxControl = {
     lightCampfire: function() {
         // Ignite Campfire sound
         SFX_campfire_ignite.play()
+        setTimeout(() => {
+          fire_lit = true
+          // Start campfire_loop volume at 0 to fade in
+          // Play the campfire_loop sound in a loop
+          // Fade in campfire_loop over 0.5 seconds
+          fadeAsLoop(SFX_campfire_loop, 0, sfxVolume.campfire_loop, 0.5)
 
-        // // Start campfire_loop volume at 0 to fade in
-        // SFX_campfire_loop.setVolume(0)
-        // // Play the campfire_loop sound in a loop
-        // SFX_campfire_loop.loop()
-        // // Fade in campfire_loop over 0.5 seconds
-        // SFX_campfire_loop.setVolume(1, 0.5)
-        fadeAsLoop(SFX_campfire_loop, 0, sfxVolume.campfire_loop, 0.5)
-
-        // Play ambient music as a loop. 
-        // It has its own crossfade in the file,
-        // so it can just be played as a loop.
-        Music_ambience_loop.loop()
+          // Play ambient music as a loop. 
+          // It has its own crossfade in the file,
+          // so it can just be played as a loop.
+          Music_ambience_loop.loop()
+          Music_ambience_loop.setVolume(sfxVolume.ambientMusic)
+        }, 750)
     },
     
     eatMarshmallow: function() {
