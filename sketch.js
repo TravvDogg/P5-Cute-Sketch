@@ -168,6 +168,7 @@ function mouseMoved() {
 }
 
 function mousePressed() {
+  // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
   if (mouseButton == LEFT) {
     marshmallow.holdToFire()
@@ -179,7 +180,6 @@ function mousePressed() {
     }
     return false
   }
-  // Measure time between interactions, for hud hiding logic
 }
 
 function mouseReleased() {
