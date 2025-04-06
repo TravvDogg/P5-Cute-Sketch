@@ -21,9 +21,9 @@ class Marshmallow {
     this.state = "idle"
 
     // Possible states:
-    // "undercooked"    : Undercooked. Its alright
-    // "perfect"        : Perfect. Yummy Marshmallow
-    // "burnt"          : Overcooked, tastes like charcoal
+    // "undercooked"    : Just a raw marshmallow
+    // "perfect"        : Perfectly golden brown
+    // "burnt"          : Crispy and charred
     this.cookedState = "undercooked"
 
     // Weather or not the marshmallow is eaten.
@@ -112,7 +112,7 @@ class Marshmallow {
     let burnt = color(12, 31, 50)
 
     if (this.cookedState == "burnt" && !this.isExtinguished) {
-      // Burnt appearance: darker fill and stroke
+      // Glowing orange stroke with burnt fill
       fill(color(burnt))
       stroke(10, 50, 50)
       
@@ -122,17 +122,21 @@ class Marshmallow {
           new FireParticle(this.position.x, this.position.y, 1, 0.975, 0.1, 0.5, -2, 0.97)
         )
       }
-
+      
+      // Play the burnt sound effect
       if (!this.burntSoundEffectStarted) {
         sfxControl.igniteMarshmallow()
+        // Make sure the burnt sound effect plays only once
         this.burntSoundEffectStarted = true
       }
-
+      
+    // Visually burnt appearence with a charred stroke
     } else if (this.isExtinguished) {
       fill(color(burnt))
       stroke(20)
     } else {
 
+      // Allow for some margin of error when cooking, for a golden brown roast
       let perfectTime = this.cookThreshold * this.perfectionRatio
       if (this.cookTimer < perfectTime) {
         let progress = constrain(this.cookTimer / perfectTime, 0, 1)
@@ -151,23 +155,27 @@ class Marshmallow {
     let elapsed = (millis() - this.ms) / 1000.0
     if (this.state == "cooking") {
       if (elapsed < this.shrinkDuration) {
+        // Shrink Marshmallow
       this.displaySize = constrain(map(elapsed, 0, this.shrinkDuration, this.maxSize, this.minSize), this.minSize, this.maxSize)
       } else {
+        // The marshmallow is already shrunk, 
+        // so it can stay as a constant size
       this.displaySize = this.minSize
       }
     } else {
       if (elapsed < this.shrinkDuration) {
+        // Grow marshmallow
         this.displaySize = constrain(map(elapsed, 0, this.shrinkDuration, this.minSize, this.maxSize), this.minSize, this.maxSize)
       } else {
+        // The marshmallow is already grown, 
+        // so it can stay as a constant size
         this.displaySize = this.maxSize
       }
     }
 
-
     // Set marshmallow's curves to be a little less sharp and boxy
     let marshmallowSquircleCurves = this.displaySize / 3
     square(this.position.x, this.position.y, this.displaySize, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves)
-
   }
   
   // Mouse interactions

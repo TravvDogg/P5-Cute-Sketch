@@ -6,7 +6,6 @@
 ------------------------------------------------------------------------
 \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ // \\ */
 
-//#region Main-Logic
 // Initialise fire_particles array
 let fire_particles = []
 // Initialise coordinates of fire base
@@ -48,7 +47,7 @@ function setup() {
 }
 
 function draw() {
-  // ---------------------------------Execute Regardless of Fire State-----------------------------
+  // ------------------Execute Regardless of Fire State-------------------------
   colorMode(RGB)
   background(50)
 
@@ -68,7 +67,7 @@ function draw() {
 
   // Logic for the beginning of the simulation, before the fire is lit
   if (!fire_lit) {
-    // -------------------------------Execute While Fire is Unlit----------------------------------
+    // ----------------------Execute While Fire is Unlit------------------------
 
     if (!lightingCampfire) {
       fill(255, 255)
@@ -83,7 +82,7 @@ function draw() {
     text("Press 'F' to light campfire", width / 2, height / 2)
     return
   }
-  // ---------------------------------Execute While Fire is Lit------------------------------------
+  // -------------------------Execute While Fire is Lit-------------------------
 
   // Add a flame particle to the base of the fire on varying frames
   if (frameCount % random(1, 2) <= 1) {
@@ -141,7 +140,7 @@ function updateBufferedMarshmallows() {
 }
 
 
-// Interactions
+//------------------------------ Interactions ----------------------------------
 
 function mousePressed() {
   if (mouseButton == LEFT) {
@@ -177,12 +176,9 @@ function keyPressed() {
 }
 
 
-//#endregion
-
-//#region Sound-Effect-Control-Functions
 // Sound effect control and setup
 /* 
---------------------------------------- Sound Effects Used ------------------------------------------
+----------------------------- Sound Effects Used -------------------------------
 Marshmallow Lighting on fire sound effect (clipped)
 And Marshmallow Burning loop (clipped and edited)
 Firework sparkler Sound effect by ZapSplat (ZapSplat Standard License)
@@ -210,7 +206,7 @@ Burp Human by eZZin -- https://freesound.org/s/684129/ -- License: Creative Comm
 Background Music (edited)
 Music by Premankur Adhikary from Pixabay
 
------------------------------------------- Creative Licenses ----------------------------------------
+---------------------------- Creative Licenses ---------------------------------
 ZapSplat Standard license
 https://www.zapsplat.com/license-type/standard-license/
 
@@ -257,16 +253,16 @@ const burpChance = 0.3
 const sfxControl = {
     initSounds: function() {
         // Initialize all sound assets
-        SFX_campfire_ignite = loadSound('Aux/Light_campfire.mp3')
-        SFX_campfire_loop = loadSound('Aux/Campfire_loop.mp3')
-        SFX_marshmallow_eat = loadSound('Aux/Marshmallow_eat.mp3')
-        SFX_burp = loadSound('Aux/Burp.mp3')
-        SFX_marshmallow_ignite = loadSound('Aux/Marshmallow_light.mp3')
-        SFX_marshmallow_burn_loop = loadSound('Aux/Marshmallow_fire_loop.mp3')
-        SFX_marshmallow_extinguish = loadSound('Aux/Marshmallow_extinguish.mp3')
+        SFX_campfire_ignite = loadSound('/Aux/Light_campfire.mp3')
+        SFX_campfire_loop = loadSound('/Aux/Campfire_loop.mp3')
+        SFX_marshmallow_eat = loadSound('/Aux/Marshmallow_eat.mp3')
+        SFX_burp = loadSound('/Aux/Burp.mp3')
+        SFX_marshmallow_ignite = loadSound('/Aux/Marshmallow_light.mp3')
+        SFX_marshmallow_burn_loop = loadSound('/Aux/Marshmallow_fire_loop.mp3')
+        SFX_marshmallow_extinguish = loadSound('/Aux/Marshmallow_extinguish.mp3')
         // Music_ambience_loop = loadSound('Aux/Ambient_music.mp3')
         // Link to the file as it is over 5MiB, too large for P5.js.
-        Music_ambience_loop = loadSound('Aux/Ambient_music_1_compressed.mp3')
+        Music_ambience_loop = loadSound('/Aux/Ambient_music_1_compressed.mp3')
     },
     
     lightCampfire: function() {
@@ -322,6 +318,7 @@ const sfxControl = {
     }
 }
 
+// Tell the marshmallow instance when the sound effects have finished.
 function flagMarshmallowSoundFinished(marshmallow_instance) {
     if (marshmallow_instance instanceof Marshmallow) {
       marshmallow_instance.isFinished = true
@@ -356,4 +353,3 @@ function fadeAsLoop(soundEffect, startVolume = 0, endVolume = 1, fadeTime = 0.5,
         console.warn("Not a valid sound file")
     }
 }
-//#endregion
