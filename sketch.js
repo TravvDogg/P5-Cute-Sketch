@@ -19,13 +19,18 @@ let lightingCampfire = false
 // Measure time for text to fade off screen
 let fadeLightCampfireTextStartTime = 0
 
+// How far away from the sides and top/bottom the text is drawn
 const textPaddingSides = 20
 const textPaddingUD = 10
+// Check if the mouse is within the canvas
+let mouseIsWithinCanvas
+
 // Instance of the marshmallow class
 let marshmallow
 
 // Buffer for marshmallows that still have tasks to complete after they are eaten
 let marshmallowBuffer = []
+
 function preload() {
   sfxControl.initSounds()
 }
@@ -34,7 +39,6 @@ function setup() {
   createCanvas(400, 400)
   frameRate(60)
   rectMode(CENTER)
-
   // Draw fire from the middle of the screen
   fire_base_x = width / 2
   // Draw fire 3/4 the height of the screen
@@ -48,6 +52,7 @@ function draw() {
   colorMode(RGB)
   background(50)
 
+  mouseIsWithinCanvas = mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height
   // Manage buffered marshmallows and delete them when neccesary.
   updateBufferedMarshmallows()
   // Update and display all fire_particles
@@ -140,7 +145,7 @@ function updateBufferedMarshmallows() {
 
 function mousePressed() {
   if (mouseButton == LEFT) {
-    marshmallow.throwTowardsFire()
+    marshmallow.holdToFire()
   } else if (mouseButton == RIGHT) {
     if (!marshmallow.isEaten) {
       marshmallow.rightClickAction()
@@ -163,7 +168,7 @@ window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 
 function keyPressed() {
   if (key === 'F' || key === 'f') {
-    if (!fire_lit) {
+    if (!fire_lit && !lightingCampfire) {
       lightingCampfire = true
       fadeLightCampfireTextStartTime = millis()
       sfxControl.lightCampfire()
@@ -235,18 +240,19 @@ let Music_ambience_loop
 // Change any volume control here. No need to look through the rest of the script
 const sfxVolume = {
     marshmallow_ignite: 1,
-    marshmallow_burnLoop: 1,
-    marshmallow_extinguish: 1,
+    marshmallow_burnLoop: 0.6,
+    marshmallow_extinguish: 0.1,
     marshmallow_eat: 1,
-    burp: 1,
+    burp: 0.6,
     campfire_ignite: 1,
     campfire_loop: 0.8,
-    ambientMusic: 0.3
+    ambientMusic: 0.15
+    // ambientMusic: 0 // Temporarily mute music because it was getting a lil old while coding
 }
 
 // 50% chance to play burp sound effect. 
 // Higher number means higher chance
-const burpChance = 0.5
+const burpChance = 0.3
 
 const sfxControl = {
     initSounds: function() {
@@ -262,59 +268,63 @@ const sfxControl = {
     },
     
     lightCampfire: function() {
-        // Ignite Campfire sound
-        SFX_campfire_ignite.play()
-        setTimeout(() => {
-          fire_lit = true
-          // Start campfire_loop volume at 0 to fade in
-          // Play the campfire_loop sound in a loop
-          // Fade in campfire_loop over 0.5 seconds
-          fadeAsLoop(SFX_campfire_loop, 0, sfxVolume.campfire_loop, 0.5)
+      // Ignite Campfire sound
+      SFX_campfire_ignite.setVolume(sfxVolume.campfire_ignite)
+      SFX_campfire_ignite.play()
+      setTimeout(() => {
+        fire_lit = true
+        // Fade in over 0.5 seconds, from 0 to the volume set in sfxVolume object
+        fadeAsLoop(SFX_campfire_loop, 0, sfxVolume.campfire_loop, 0.5)
 
-          // Play ambient music as a loop. 
-          // It has its own crossfade in the file,
-          // so it can just be played as a loop.
-          Music_ambience_loop.loop()
-          Music_ambience_loop.setVolume(sfxVolume.ambientMusic)
-        }, 750)
+        // Play ambient music as a loop. 
+        // It has its own crossfade in the file,
+        // so it can just be played as a loop.
+        Music_ambience_loop.setVolume(sfxVolume.ambientMusic)
+        Music_ambience_loop.loop()
+      }, 750)
     },
     
-    eatMarshmallow: function() {
-        // Play marshmallow eat sound effect
-        SFX_marshmallow_eat.play()
-        
-        // Randomised burp sound effect logic
-        SFX_marshmallow_eat.onended(() => {
-            // Chance to play burp sound effect
-            if (random(1) < burpChance) {
-                SFX_burp.play()
-            }
-        })
+    eatMarshmallow: function(marshmallow_instance) {
+      // Play marshmallow eat sound effect
+      SFX_marshmallow_eat.setVolume(sfxVolume.marshmallow_eat)
+      SFX_marshmallow_eat.play()
+      
+      // Randomised burp sound effect logic
+      SFX_marshmallow_eat.onended(() => {
+        // Chance to play burp sound effect
+        if (random(1) < burpChance) {
+            SFX_burp.setVolume(sfxVolume.burp)
+            SFX_burp.play()
+            SFX_burp.onended(() => flagMarshmallowSoundFinished(marshmallow_instance))
+        } else {
+          flagMarshmallowSoundFinished(marshmallow_instance)
+        }
+      })
     },
     
     igniteMarshmallow: function() {
-        // Play ignite sound effect
-        SFX_marshmallow_ignite.play()
-
-        // // Set loop to start at 0 volume, to fade in later
-        // SFX_marshmallow_burn_loop.setVolume(0)
-        // // Start as a loop
-        // SFX_marshmallow_burn_loop.loop()
-        // // Fade in over 0.5 seconds
-        // SFX_marshmallow_burn_loop.setVolume(1, 0.5)
-        fadeAsLoop(SFX_marshmallow_burn_loop, 0, sfxVolume.marshmallow_burnLoop, 0.5)
+      // Play ignite sound effect
+      SFX_marshmallow_ignite.setVolume(sfxVolume.igniteMarshmallow)
+      SFX_marshmallow_ignite.play()
+      // Fade in over 0.5 seconds, from 0 to the volume set in sfxVolume object
+      
+      fadeAsLoop(SFX_marshmallow_burn_loop, 0, sfxVolume.marshmallow_burnLoop, 0.5)
     },
     
     extinguishFire: function() {
-        SFX_marshmallow_extinguish.play()
+      SFX_marshmallow_extinguish.setVolume(sfxVolume.marshmallow_extinguish)
+      SFX_marshmallow_extinguish.play()
 
-        // SFX_marshmallow_burn_loop.setVolume(0, 0.5) // Fade out over 0.5 seconds
+      // Fade out from 1 to 0 over 0.5 seconds, before stopping the playback.
+      fadeAsLoop(SFX_marshmallow_burn_loop, sfxVolume.marshmallow_burnLoop, 0, 0.5, true)
+    }
+}
 
-        // // Wait 500 ms to stop the loop.
-        // setTimeout(() => {
-        // SFX_marshmallow_burn_loop.stop()
-        // }, 500)
-        fadeAsLoop(SFX_marshmallow_burn_loop, sfxVolume.marshmallow_burnLoop, 0, 0.5, true)
+function flagMarshmallowSoundFinished(marshmallow_instance) {
+    if (marshmallow_instance instanceof Marshmallow) {
+      marshmallow_instance.isFinished = true
+    } else {
+      console.warn("Invalid marshmallow instance")
     }
 }
 
