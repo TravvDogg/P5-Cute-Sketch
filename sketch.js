@@ -45,6 +45,7 @@ function preload() {
   sfxControl.initSounds()
 }
 
+let hasSetup = false
 function setup() {
   createCanvas(400, 400)
   frameRate(60)
@@ -55,6 +56,7 @@ function setup() {
   fire_base_y = (3 * height) / 4
 
   marshmallow = new Marshmallow(width / 2, height / 2)
+  hasSetup = true
 }
 
 function draw() {
@@ -170,23 +172,27 @@ function mouseMoved() {
 function mousePressed() {
   // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
-  if (mouseButton == LEFT) {
-    marshmallow.holdToFire()
-  } else if (mouseButton == RIGHT) {
-    if (!marshmallow.isEaten) {
-      marshmallow.rightClickAction()
-    } else {
-      replaceActiveMarshmallow(new Marshmallow(mouseX, mouseY))
+  if (hasSetup) {
+    if (mouseButton == LEFT) {
+      marshmallow.holdToFire()
+    } else if (mouseButton == RIGHT) {
+      if (!marshmallow.isEaten) {
+        marshmallow.rightClickAction()
+      } else {
+        replaceActiveMarshmallow(new Marshmallow(mouseX, mouseY))
+      }
+      return false
     }
-    return false
   }
 }
 
 function mouseReleased() {
   // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
-  if (mouseButton == LEFT) {
-    marshmallow.returnToPlayer()
+  if (hasSetup) {
+    if (mouseButton == LEFT) {
+      marshmallow.returnToPlayer()
+    }
   }
 }
 
@@ -197,11 +203,13 @@ window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 function keyPressed() {
   // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
-  if (key === 'F' || key === 'f') {
-    if (!fire_lit && !lightingCampfire) {
-      lightingCampfire = true
-      fadeLightCampfireTextStartTime = millis()
-      sfxControl.lightCampfire()
+  if (hasSetup) {
+    if (key === 'F' || key === 'f') {
+      if (!fire_lit && !lightingCampfire) {
+        lightingCampfire = true
+        fadeLightCampfireTextStartTime = millis()
+        sfxControl.lightCampfire()
+      }
     }
   }
 }
