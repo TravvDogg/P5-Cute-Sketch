@@ -263,8 +263,10 @@ const sfxControl = {
         SFX_burp = loadSound('Aux/Burp.mp3')
         SFX_marshmallow_ignite = loadSound('Aux/Marshmallow_light.mp3')
         SFX_marshmallow_burn_loop = loadSound('Aux/Marshmallow_fire_loop.mp3')
-        SFX_marshmallow_extinguish = loadSound('Aux/marshmallow_extinguish.mp3')
-        Music_ambience_loop = loadSound('Aux/Ambient_music.mp3')
+        SFX_marshmallow_extinguish = loadSound('Aux/Marshmallow_extinguish.mp3')
+        // Music_ambience_loop = loadSound('Aux/Ambient_music.mp3')
+        // Link to the file as it is over 5MiB, too large for P5.js.
+        Music_ambience_loop = loadSound('Aux/Ambient_music_1_compressed.mp3')
     },
     
     lightCampfire: function() {
@@ -304,7 +306,7 @@ const sfxControl = {
     
     igniteMarshmallow: function() {
       // Play ignite sound effect
-      SFX_marshmallow_ignite.setVolume(sfxVolume.igniteMarshmallow)
+      SFX_marshmallow_ignite.setVolume(sfxVolume.marshmallow_ignite)
       SFX_marshmallow_ignite.play()
       // Fade in over 0.5 seconds, from 0 to the volume set in sfxVolume object
       
