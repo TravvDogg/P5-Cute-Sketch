@@ -30,10 +30,10 @@ let lastInteractionTime = 0
 // Idle threshold in ms. After this threshold, hide the hud
 const idleThreshold = 7500
 let isIdle = false
-
 // One Minute idle
 const idleLongThreshold = 60000
 let isIdleLong = false
+
 
 // Instance of the marshmallow class
 let marshmallow
@@ -67,7 +67,7 @@ function draw() {
   isIdle = timeSinceLastInteraction > idleThreshold
 
   isIdleLong = timeSinceLastInteraction > idleLongThreshold
-
+  
   mouseIsWithinCanvas = mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height
   // Manage buffered marshmallows and delete them when neccesary.
   updateBufferedMarshmallows()
@@ -108,12 +108,11 @@ function draw() {
       new FireParticle(fire_base_x + random(-20, 20), fire_base_y),
     )
   }
-
+    
   if (!isIdleLong) {
     marshmallow.update()
     marshmallow.show()
   }
-  
   // Draw all ui elements on top
   drawUI()
 }
@@ -166,8 +165,10 @@ function mouseMoved() {
   // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
 }
-
+  
+  
 function mousePressed() {
+  // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
   if (mouseButton == LEFT) {
     marshmallow.holdToFire()
@@ -179,15 +180,14 @@ function mousePressed() {
     }
     return false
   }
-  // Measure time between interactions, for hud hiding logic
 }
 
 function mouseReleased() {
+  // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
   if (mouseButton == LEFT) {
     marshmallow.returnToPlayer()
   }
-  // Measure time between interactions, for hud hiding logic
 }
 
 // Prevent default context menu on right click, courtesey of dev.to,
@@ -195,6 +195,7 @@ function mouseReleased() {
 window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 
 function keyPressed() {
+  // Measure time between interactions, for hud hiding logic
   lastInteractionTime = millis()
   if (key === 'F' || key === 'f') {
     if (!fire_lit && !lightingCampfire) {
@@ -203,7 +204,6 @@ function keyPressed() {
       sfxControl.lightCampfire()
     }
   }
-  // Measure time between interactions, for hud hiding logic
 }
 
 
