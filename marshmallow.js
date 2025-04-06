@@ -30,7 +30,7 @@ class Marshmallow {
     this.isEaten = false
 
     // Check for completion of eaten sound effect
-    this.soundEffectPlayed = false
+    this.eatenSoundEffectComplete = false
 
     // Check before deleting marshmallow
     // Incase marshmallow still has tasks to do.
@@ -38,6 +38,9 @@ class Marshmallow {
 
     // Flag to check if a burnt marshmallow has been extinguished
     this.isExtinguished = false
+
+    // Make sure to only start the burning sound effects once
+    this.burntSoundEffectStarted = false
     
     // Timer to track cooking progress when near the fire
     this.cookTimer = 0
@@ -64,11 +67,8 @@ class Marshmallow {
   }
   
   update() {
-
-    // Temporary check, simulates a sound finished playing
-    this.soundEffectPlayed = true
     // Mark marshmallow for deletion once it has completed every function.
-    this.isFinished = (this.soundEffectPlayed && (this.fire_particles.length == 0))
+    this.isFinished = (this.eatenSoundEffectComplete && (this.fire_particles.length == 0))
 
     this.position.set(mouseX, mouseY)
 
@@ -86,11 +86,9 @@ class Marshmallow {
         this.cookedState = "burnt"
       }
     }
-    // Do nothing if "eaten"
   }
   
   show() {
-    // Persistant logic to run after marshmallow is eaten.
 
     // Update and display all fire_particles
     for (let i = this.fire_particles.length - 1; i >= 0; i--) {
@@ -124,7 +122,12 @@ class Marshmallow {
           new FireParticle(this.position.x, this.position.y, 1, 0.975, 0.1, 0.5, -2, 0.97)
         )
       }
-      
+
+      if (!this.burntSoundEffectStarted) {
+        sfxControl.igniteMarshmallow()
+        this.burntSoundEffectStarted = true
+      }
+
     } else if (this.isExtinguished) {
       fill(color(burnt))
       stroke(20)
@@ -143,6 +146,8 @@ class Marshmallow {
       noStroke()
     }
     
+    // Logic for resizing the marshmallow to look like it's going closer and further from the fire
+    // Transition over 1000 milliseconds (1 second)
     let elapsed = (millis() - this.ms) / 1000.0
     if (this.state == "cooking") {
       if (elapsed < this.shrinkDuration) {
@@ -159,7 +164,7 @@ class Marshmallow {
     }
 
 
-    
+    // Set marshmallow's curves to be a little less sharp and boxy
     let marshmallowSquircleCurves = this.displaySize / 3
     square(this.position.x, this.position.y, this.displaySize, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves, marshmallowSquircleCurves)
 
@@ -167,8 +172,8 @@ class Marshmallow {
   
   // Mouse interactions
 
-  // On left mouse press: throw the marshmallow if it is following the mouse
-  throwTowardsFire() {
+  // On left mouse press: move the marshmallow towards the fire
+  holdToFire() {
     if (this.state == "idle") {
       this.ms = millis()
       this.state = "cooking"
@@ -189,6 +194,7 @@ class Marshmallow {
       if (!this.isExtinguished) {
         // First right-click extinguishes the burnt marshmallow
         this.isExtinguished = true
+        sfxControl.extinguishFire()
       } else {
         // Second right-click: eat the marshmallow
         this.eatMarshmallow()
@@ -200,12 +206,7 @@ class Marshmallow {
   }
 
   eatMarshmallow() {
-      if (this.cookedState == "undercooked") {
-        this.isEaten = true
-      } else if (this.cookedState == "perfect") {
-        this.isEaten = true
-      } else if (this.cookedState == "burnt") {
-        this.isEaten = true
-      }
+    sfxControl.eatMarshmallow(this)
+    this.isEaten = true
   }
 }
