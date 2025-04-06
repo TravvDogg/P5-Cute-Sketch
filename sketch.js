@@ -21,8 +21,19 @@ let fadeLightCampfireTextStartTime = 0
 // How far away from the sides and top/bottom the text is drawn
 const textPaddingSides = 20
 const textPaddingUD = 10
+
+// --- Hud hiding logic ---
 // Check if the mouse is within the canvas
 let mouseIsWithinCanvas
+// Measure the time since the last interaction
+let lastInteractionTime = 0
+// Idle threshold in ms. After this threshold, hide the hud
+const idleThreshold = 7500
+let isIdle = false
+
+// One Minute idle
+const idleLongThreshold = 60000
+let isIdleLong = false
 
 // Instance of the marshmallow class
 let marshmallow
@@ -50,6 +61,12 @@ function draw() {
   // ------------------Execute Regardless of Fire State-------------------------
   colorMode(RGB)
   background(50)
+
+  let timeSinceLastInteraction = millis() - lastInteractionTime
+
+  isIdle = timeSinceLastInteraction > idleThreshold
+
+  isIdleLong = timeSinceLastInteraction > idleLongThreshold
 
   mouseIsWithinCanvas = mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height
   // Manage buffered marshmallows and delete them when neccesary.
@@ -91,8 +108,11 @@ function draw() {
       new FireParticle(fire_base_x + random(-20, 20), fire_base_y),
     )
   }
-  marshmallow.update()
-  marshmallow.show()
+
+  if (!isIdleLong) {
+    marshmallow.update()
+    marshmallow.show()
+  }
   
   // Draw all ui elements on top
   drawUI()
@@ -104,7 +124,7 @@ const fadeRate = 10
 function drawUI() {
   colorMode(RGB)
   // Only draw UI elements when mouse is within the canvas
-  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+  if (mouseIsWithinCanvas && !isIdle) {
     // Fade in to 255 (max alpha) at a constant rate, without going above 255
     UI_alpha = min(UI_alpha + fadeRate, 255)
   } else {
@@ -142,7 +162,13 @@ function updateBufferedMarshmallows() {
 
 //------------------------------ Interactions ----------------------------------
 
+function mouseMoved() {
+  // Measure time between interactions, for hud hiding logic
+  lastInteractionTime = millis()
+}
+
 function mousePressed() {
+  lastInteractionTime = millis()
   if (mouseButton == LEFT) {
     marshmallow.holdToFire()
   } else if (mouseButton == RIGHT) {
@@ -153,12 +179,15 @@ function mousePressed() {
     }
     return false
   }
+  // Measure time between interactions, for hud hiding logic
 }
 
 function mouseReleased() {
+  lastInteractionTime = millis()
   if (mouseButton == LEFT) {
     marshmallow.returnToPlayer()
   }
+  // Measure time between interactions, for hud hiding logic
 }
 
 // Prevent default context menu on right click, courtesey of dev.to,
@@ -166,6 +195,7 @@ function mouseReleased() {
 window.addEventListener(`contextmenu`, (e) => e.preventDefault())
 
 function keyPressed() {
+  lastInteractionTime = millis()
   if (key === 'F' || key === 'f') {
     if (!fire_lit && !lightingCampfire) {
       lightingCampfire = true
@@ -173,6 +203,7 @@ function keyPressed() {
       sfxControl.lightCampfire()
     }
   }
+  // Measure time between interactions, for hud hiding logic
 }
 
 
